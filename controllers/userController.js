@@ -59,7 +59,7 @@ router.post("/update", (req, res) => {
 })
 
 //Route to delete user model
-router.get("/delete", (req, res) =>{
+router.post("/delete", (req, res) =>{
   const {id} = req.body;
   User.findByIdAndRemove(id).then(data => {
     return res.status(httpStatus.OK).json({status: true, message: "User Deleted", data})
