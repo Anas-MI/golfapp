@@ -46,5 +46,28 @@ router.put('/:id', function (req, res) {
   });
 });
 
+//Route to update user details
+router.post("/update", (req, res) => {
+  const { id} = req.body;
+  User.findByIdAndUpdate(id, req.body, {new: true}).then(data => {
+    return res.status(httpStatus.OK).json({status: true, message: "User Details Updated", data})
+  }).catch(
+    err => {
+      return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({status: false, message:`Server error: ${err.message}`});
+    }
+  )
+})
+
+//Route to delete user model
+router.get("/delete", (req, res) =>{
+  const {id} = req.body;
+  User.findByIdAndRemove(id).then(data => {
+    return res.status(httpStatus.OK).json({status: true, message: "User Deleted", data})
+  }).catch(err => {
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({status: false, message:`Server error: ${err.message}`});
+  })	
+})
+
+
 
 module.exports = router;

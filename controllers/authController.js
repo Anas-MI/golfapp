@@ -42,7 +42,7 @@ router.post('/login', function(req, res) {
 });
 
 router.post('/register', function(req, res) {
-  const {application, email, name, password, state,phone,age,country, ios_token,android_token} = req.body
+  const {application, device, email, name, password, state,phone,age,country, ios_token,android_token} = req.body
   if (!application || !email || !name || !password) {
     return res.status(httpStatus.BAD_REQUEST).send({ registered: false, error: 'Invalid parameters in request' });
   }
@@ -56,7 +56,8 @@ router.post('/register', function(req, res) {
       age,
       country,
       ios_token,
-      android_token
+      android_token,
+      device
     },
     function (error, user) {
       if (error) {

@@ -36,7 +36,8 @@ const userSchema = new Schema({
     type:String
   },
   ios_token:{type:String},
-  android_token:{type:String}
+  android_token:{type:String},
+  device:{type:String}
 });
 
 
