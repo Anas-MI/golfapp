@@ -5,7 +5,8 @@ const Synergistic = require('../models/Synergistic');
 
 //Route to create new posts
 router.post('/create', (req, res) => {
-	let name,
+    console.log(req.body)
+    let {name,
 		goal,
 		explanation,
 		nutritionTip,
@@ -13,7 +14,7 @@ router.post('/create', (req, res) => {
 		thinkGolf,
 		makeMeSmile,
 		week,
-		day = req.body;
+		day }= req.body;
 
 	let synergistic = new Synergistic({
 		name,
@@ -80,3 +81,5 @@ router.post('/update/:id', (req, res) => {
 			res.status(httpStatus.BAD_REQUEST).json({ status: false, message: err });
 		});
 });
+
+module.exports = router;

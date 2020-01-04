@@ -32,4 +32,7 @@ app.use('/api/v1/users', userController);
 const authController = require('controllers/authController');
 app.use('/api/v1/authentication', authController);
 
+const synergisticController = require('./controllers/synergisticController')
+app.use('/api/v1/synergistic', synergisticController)
+
 module.exports = app;
