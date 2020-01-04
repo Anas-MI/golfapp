@@ -34,7 +34,7 @@ router.get('/:id', function (req, res) {
 router.delete('/:id', function (req, res) {
   User.findByIdAndRemove(req.params.id, function (err, user) {
     if (err) return res.status(httpStatus.INTERNAL_SERVER_ERROR).send(`Server error: ${err.message}`);
-    res.status(httpStatus.OK).send("User: "+ user.name +" was deleted.");
+    res.status(httpStatus.OK).json({status: true, message:"User: "+ user.name +" was deleted."});
   });
 });
 
