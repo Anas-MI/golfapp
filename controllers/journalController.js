@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const httpStatus = require('lib/httpStatus');
 const Journal = require('../models/Journal');
+const JournalFeed = require('../models/JournalFeed');
+
 
 //Route to create a new question
 router.post('/create', (req, res) => {
@@ -69,7 +71,19 @@ router.post('/update/:id', (req, res) => {
 		});
 });
 
-
+//Journal Feed
+router.post("/feed/create", (req, res) => {
+    let journalFeed = new JournalFeed(
+       req.body 
+    )
+    
+    
+    journalFeed.save().then(data => {
+        res.status(httpStatus.OK).json({status: true, message:"Feed created", data})
+    }).catch(err => {
+        res.status(httpStatus.BAD_REQUEST).json({status: false, message:err})
+    })
+})
 
 
 module.exports = router;
