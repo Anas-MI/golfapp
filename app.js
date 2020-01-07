@@ -35,4 +35,7 @@ app.use('/api/v1/authentication', authController);
 const synergisticController = require('./controllers/synergisticController')
 app.use('/api/v1/synergistic', synergisticController)
 
+const journalController = require('./controllers/journalController')
+app.use('/api/v1/journal', journalController)
+
 module.exports = app;
