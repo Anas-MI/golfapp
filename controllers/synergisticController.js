@@ -50,12 +50,15 @@ router.get('/getall', (req, res) => {
 });
 
 //Route to delete a post
-router.delete('/:id', (req, res) => {
+router.delete('/delete/:id', (req, res) => {
+	console.log("here")
 	Synergistic.findByIdAndRemove(req.params.id)
 		.then((data) => {
-			res.status(httpStatus.Ok).json({ status: true, message: 'Post deleted' });
+		
+			res.status(200).json({ status: true, message: 'Post deleted' });
 		})
 		.catch((err) => {
+			
 			res.status(httpStatus.BAD_REQUEST).json({ status: false, message: err });
 		});
 });
