@@ -67,6 +67,15 @@ router.post('/update/:id', (req, res) => {
 		});
 });
 
+//Change state of is paid 
+router.post("/change/:id", (req, res) => {
+    Workout.findByIdAndUpdate(req.params.id, {$set:{isPaid: req.body.isPaid}}).then(data => {
+        res.status(httpStatus.OK).json({ status: true, message: 'Workout Updated', data });
 
+    }).catch(err => {
+        res.status(httpStatus.BAD_REQUEST).json({ status: false, message: err });
+
+    })
+})
 
 module.exports = router;
