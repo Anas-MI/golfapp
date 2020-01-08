@@ -38,4 +38,7 @@ app.use('/api/v1/synergistic', synergisticController)
 const journalController = require('./controllers/journalController')
 app.use('/api/v1/journal', journalController)
 
+const favoritesController = require('./controllers/favoritesController')
+app.use('/api/v1/favorites', favoritesController)
+
 module.exports = app;
