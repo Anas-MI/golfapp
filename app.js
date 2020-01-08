@@ -48,4 +48,7 @@ app.use('/api/v1/aboutus', aboutUsController)
 const howItWorksController = require("./controllers/howItWorks")
 app.use("/api/v1/howitworks", howItWorksController)
 
+const WorkoutController = require("./controllers/workoutController")
+app.use("/api/v1/Workout", WorkoutController)
+
 module.exports = app;
