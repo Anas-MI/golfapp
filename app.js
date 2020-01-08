@@ -41,4 +41,8 @@ app.use('/api/v1/journal', journalController)
 const favoritesController = require('./controllers/favoritesController')
 app.use('/api/v1/favorites', favoritesController)
 
+
+const aboutUsController = require('./controllers/aboutUs')
+app.use('/api/v1/aboutus', aboutUsController)
+
 module.exports = app;
