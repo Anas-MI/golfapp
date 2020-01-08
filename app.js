@@ -45,4 +45,7 @@ app.use('/api/v1/favorites', favoritesController)
 const aboutUsController = require('./controllers/aboutUs')
 app.use('/api/v1/aboutus', aboutUsController)
 
+const howItWorksController = require("./controllers/howItWorks")
+app.use("/api/v1/howitworks", howItWorksController)
+
 module.exports = app;
