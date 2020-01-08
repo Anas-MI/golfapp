@@ -86,4 +86,14 @@ router.post("/feed/create", (req, res) => {
 })
 
 
+//Route to get all the journal feeds
+router.get("/feed/getall", (req, res) => {
+    JournalFeed.find({}).populate("user").populate("questionId").then(data => {
+        res.status(httpStatus.OK).json({status: true, message:"Data fetched!", data})
+    }).catch(err => {
+        res.status(httpStatus.BAD_REQUEST).json({status: false, message: err})
+    })
+})
+
+
 module.exports = router;
