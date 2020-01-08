@@ -5,7 +5,7 @@ const Favorites = require('../models/Favorites');
 
 
 
-//Route to create a new question
+//Route to add synergy to favorites
 router.post('/create', (req, res) => {
  
 
@@ -23,7 +23,7 @@ router.post('/create', (req, res) => {
 		});
 });
 
-//Route to get all the posts
+//Route to get all favorites
 router.get('/getall', (req, res) => {
 	Favorites.find({}).populate("user").populate("synergistic")
 		.then((data) => {
@@ -34,7 +34,7 @@ router.get('/getall', (req, res) => {
 		});
 });
 
-//Route to delete a post
+//Route to remove id from favorite
 router.delete('/delete/:id', (req, res) => {
 	
 	Favorites.findByIdAndRemove(req.params.id)
@@ -48,7 +48,7 @@ router.delete('/delete/:id', (req, res) => {
 		});
 });
 
-//Route to get a single post
+//Route to get a single favorite
 router.get('/:id', (req, res) => {
 	Favorites.findById(req.params.id).populate("user").populate("synergistic")
 		.then((data) => {
@@ -59,7 +59,7 @@ router.get('/:id', (req, res) => {
 		});
 });
 
-//Route tp Update a post
+//Route tp Update a favorite
 router.post('/update/:id', (req, res) => {
 	Favorites.findByIdAndUpdate(req.params.id, req.body, { new: true })
 		.then((data) => {
@@ -70,29 +70,6 @@ router.post('/update/:id', (req, res) => {
 		});
 });
 
-// //Journal Feed
-// router.post("/feed/create", (req, res) => {
-//     let journalFeed = new JournalFeed(
-//        req.body 
-//     )
-    
-    
-//     journalFeed.save().then(data => {
-//         res.status(httpStatus.OK).json({status: true, message:"Feed created", data})
-//     }).catch(err => {
-//         res.status(httpStatus.BAD_REQUEST).json({status: false, message:err})
-//     })
-// })
-
-
-// //Route to get all the journal feeds
-// router.get("/feed/getall", (req, res) => {
-//     JournalFeed.find({}).populate("user").populate("questionId").then(data => {
-//         res.status(httpStatus.OK).json({status: true, message:"Data fetched!", data})
-//     }).catch(err => {
-//         res.status(httpStatus.BAD_REQUEST).json({status: false, message: err})
-//     })
-// })
 
 
 module.exports = router;
