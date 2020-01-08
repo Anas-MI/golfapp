@@ -25,7 +25,7 @@ router.post('/create', (req, res) => {
 
 //Route to get all the posts
 router.get('/getall', (req, res) => {
-	Favorites.find({})
+	Favorites.find({}).populate("user").populate("synergistic")
 		.then((data) => {
 			res.status(httpStatus.OK).json({ status: true, message: 'Data fetched!', data });
 		})
@@ -50,7 +50,7 @@ router.delete('/delete/:id', (req, res) => {
 
 //Route to get a single post
 router.get('/:id', (req, res) => {
-	Favorites.findById(req.params.id)
+	Favorites.findById(req.params.id).populate("user").populate("synergistic")
 		.then((data) => {
 			res.status(httpStatus.OK).json({ status: true, message: 'Data fetched!', data });
 		})
