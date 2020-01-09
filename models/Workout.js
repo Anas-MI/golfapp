@@ -6,7 +6,7 @@ const workoutSchema = new Schema({
 	url: { type: String },
 	createdAt: { type: Date, default: Date.now() },
 	updatedAt: { type: Date, default:Date.now() },
-	isEnabled: { type: Boolean, default: false },
+	isEnabled: { type: Boolean, default: true },
 	title: { type: String },
 	description: { type: String },
 	isPaid: { type: Boolean },
