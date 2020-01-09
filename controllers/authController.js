@@ -29,7 +29,7 @@ router.post('/login', function(req, res) {
             audience: application
           }
           const signedToken = jwtModule.sign(payload, signingOptions)
-          return res.status(httpStatus.OK).send({ auth: true, token: signedToken });
+          return res.status(httpStatus.OK).send({ auth: true, token: signedToken,is_email_notification: true, is_push_notification: true, created_at: Date.toString() });
         } else {
           return res.status(httpStatus.UNAUTHORIZED).send({ auth: false, token: null });
         }
@@ -40,6 +40,8 @@ router.post('/login', function(req, res) {
     }
   });
 });
+
+
 
 router.post('/register', function(req, res) {
   const {application, device, email, name, password, state,phone,age,country, ios_token,android_token} = req.body

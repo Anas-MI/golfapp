@@ -35,8 +35,8 @@ const userSchema = new Schema({
   country:{
     type:String
   },
-  ios_token:{type:String},
-  android_token:{type:String},
+  android_device_token:{type:String},
+  ios_device_token:{type:String},
   device:{type:String}
 });
 

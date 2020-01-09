@@ -51,4 +51,7 @@ app.use("/api/v1/howitworks", howItWorksController)
 const WorkoutController = require("./controllers/workoutController")
 app.use("/api/v1/Workout", WorkoutController)
 
+const PaypalController = require('./controllers/paypalcontroller')
+app.use("/api/v1/paypal", PaypalController)
+
 module.exports = app;
