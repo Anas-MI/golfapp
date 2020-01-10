@@ -70,6 +70,13 @@ router.post('/update/:id', (req, res) => {
 		});
 });
 
-
+//Route to display about us for the app
+router.get("/", (req, res) => {
+	AboutUs.find().then(data => {
+		res.status(httpStatus.OK).json({status: true, message:"About us fetched!", data: data[0]})
+	}).catch(err => {
+		res.status(httpStatus.BAD_REQUEST).json({status: false, message:err})
+	})
+})
 
 module.exports = router;
