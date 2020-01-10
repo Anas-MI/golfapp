@@ -70,6 +70,12 @@ router.post('/update/:id', (req, res) => {
 		});
 });
 
-
-
+//Route to display how it works for the app
+router.get("/", (req, res) => {
+	HowItWorks.find().then(data => {
+		res.status(httpStatus.OK).json({status: true, message:"How it works fetched!", data: data[0]})
+	}).catch(err => {
+		res.status(httpStatus.BAD_REQUEST).json({status: false, message:err})
+	})
+})
 module.exports = router;
