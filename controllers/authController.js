@@ -29,7 +29,7 @@ router.post('/login', function(req, res) {
             audience: application
           }
           const signedToken = jwtModule.sign(payload, signingOptions)
-          return res.status(httpStatus.OK).send({ auth: true, token: signedToken,is_email_notification: true, is_push_notification: true, created_at: Date.toString() });
+          return res.status(httpStatus.OK).send({ auth: true, id:_id, token: signedToken,is_email_notification: true, is_push_notification: true, created_at: Date.toString() });
         } else {
           return res.status(httpStatus.UNAUTHORIZED).send({ auth: false, token: null });
         }

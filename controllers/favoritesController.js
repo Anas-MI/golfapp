@@ -8,7 +8,7 @@ const Favorites = require('../models/Favorites');
 //Route to add synergy to favorites
 router.post('/create', (req, res) => {
  
-
+	console.log(req.body)
 	let favorites = new Favorites(
 	req.body
 	);
