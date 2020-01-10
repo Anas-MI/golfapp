@@ -70,6 +70,7 @@ router.post('/update/:id', (req, res) => {
 		});
 });
 
+//Route to delete all the fav
 
 
 module.exports = router;

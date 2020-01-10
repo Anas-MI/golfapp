@@ -7,7 +7,8 @@ const favoritesSchema = new Schema({
     synergistic:{type:Schema.Types.ObjectId, ref: "Synergistic"},
     createdAt:{type: Date, default:Date.now},
     goal:String,
-    name:String
+    name:String,
+    date:String
 })
 
 
