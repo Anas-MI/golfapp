@@ -86,8 +86,11 @@ router.post('/update/:id', (req, res) => {
 });
 
 //Getting the number of weeks/date passed from date 
-router.get("/get/synergy", (req, res) => {
-
+router.post("/get/synergy", (req, res) => {
+console.log("Ddasdscdscdscdscdscdscds")
+console.log(req.body)
+let newDate = moment(req.body.date).format("MM/DD/YYYY")
+console.log({newDate})
 	// let {passedDate} = req.body;
 	// let passedDate2 = moment("01/01/2020")
 	// // let passedDate = moment(new Date()).format("MM/DD/YYYY").toString()
@@ -116,35 +119,94 @@ router.get("/get/synergy", (req, res) => {
 	  
 	//   Date.getFormattedDateDiff(passedDate, passedDate2)
 	//   console.log({weeks, days})
-	var aPastDate = moment().subtract(5,'months');
-var aPastDay = moment().subtract(6,'days');
+
 var now = moment();
-let passedDate = moment("01/01/2019")
+let passedDate = moment(newDate)
 moment.fn.durationInWeeks = function(fromDate, toDate) {
 
     var days    = toDate.diff(fromDate, 'days');    
     var weeks   = toDate.diff(fromDate, 'weeks');
 	console.log({days})
 	console.log({weeks})
-	if(days < 8){
-		this.dataFlag = true;
-		this.final = days;
-	} else {
-		this.dayOfWeek = days - (weeks * 7 );
+	let query;
+	//if number of weeks is less than 52
+	if(weeks <= 52){
+		
+		if(days <= 7){
 
-		this.dataFlag = false
-		this.week = weeks;
-		 
+			query = {
+				week: 1,
+				day: days
+			}
+		} else if( days >=7){
+			let day = days - (weeks * 7)
+			query = {
+				week: weeks + 1,
+				day
+			}
+		}
+		
+	} else if(weeks > 52){
+		let day = days - (weeks * 7)
+		let week = weeks % 52;
+		if(week === 0){
+			week = 1;
+		}
+		query = {
+			week,
+			day
+		}
 	}
-	console.log(this.dayOfWeek)
 
-	console.log(this.dataFlag)
-	console.log(this.week)
-    if (weeks === 0) {
-        return days + ' ' + (days > 1 ? 'days' : 'day');
-    } else {
-        return weeks + ' ' + (Math.round(days / 7) > 1 ? 'weeks' : 'week');
-    }
+
+	console.log({query})
+	if(req.body.dateToFind){
+		this.dayToFind = moment(req.body.dateToFind).format('dddd').toString().toLowerCase()
+	} else {
+	this.dayToFind = moment().format('dddd').toString().toLowerCase()}
+	console.log({"daytofind":this.dayToFind})
+	Synergistic.findOne({week: query.week, day: this.dayToFind }).then(data => {
+		console.log({data})
+		if(data !== null){
+			res.status(httpStatus.OK).json({status: true, message:"Data fetched", data})
+		} 
+		else if(data === null){
+			Synergistic.find().then(data => {
+				console.log({"sss":data[0]})
+				res.status(httpStatus.OK).json({status: true, message:"No synergy found",data:data[0]
+			})
+		})
+	}
+}).catch(err => {
+			res.status(httpStatus.BAD_REQUEST).json({status: false, message: err})
+		})
+	
+
+
+	// if(days < 8){
+	// 	this.dataFlag = true;
+	// 	this.final = days;
+	// } else {
+	// 	this.dayOfWeek = days - (weeks * 7 );
+
+	// 	this.dataFlag = false
+	// 	this.week = weeks;
+		 
+	// }
+	// console.log(this.dayOfWeek)
+
+	// console.log(this.dataFlag)
+	// console.log(this.week)
+
+
+	// let dayOfWeek = passedDate.isoWeekday();
+	// console.log({"day of week": dayOfWeek})
+	
+    // if (weeks === 0) {
+    //     return days + ' ' + (days > 1 ? 'days' : 'day');
+    // } else {
+    //     return weeks + ' ' + (Math.round(days / 7) > 1 ? 'weeks' : 'week');
+    // }
 
 }
 
