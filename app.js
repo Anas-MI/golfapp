@@ -54,4 +54,7 @@ app.use("/api/v1/Workout", WorkoutController)
 const PaypalController = require('./controllers/paypalcontroller')
 app.use("/api/v1/paypal", PaypalController)
 
+const ebookController = require("./controllers/ebookController")
+app.use("/api/v1/ebook", ebookController)
+
 module.exports = app;
