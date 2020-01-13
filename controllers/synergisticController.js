@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const httpStatus = require('lib/httpStatus');
 const Synergistic = require('../models/Synergistic');
+const Journal = require('../models/Journal');
 const moment = require("moment");
 //Route to create new posts
 router.post('/create', (req, res) => {
@@ -166,17 +167,23 @@ moment.fn.durationInWeeks = function(fromDate, toDate) {
 	this.dayToFind = moment().format('dddd').toString().toLowerCase()}
 	console.log({"daytofind":this.dayToFind})
 	Synergistic.findOne({week: query.week, day: this.dayToFind }).then(data => {
+		Journal.find({}).then(journal => {
 		console.log({data})
 		if(data !== null){
-			res.status(httpStatus.OK).json({status: true, message:"Data fetched", data})
+			let dataWithJournal = {...data, ...journal}
+			console.log({dataWithJournal})
+			res.status(httpStatus.OK).json({status: true, message:"Data fetched", data, journal})
 		} 
 		else if(data === null){
 			Synergistic.find().then(data => {
+				let data2 = data[0]
+				let dataWithJournal = {journal, data2}
+			console.log({dataWithJournal})
 				console.log({"sss":data[0]})
-				res.status(httpStatus.OK).json({status: true, message:"No synergy found",data:data[0]
+				res.status(httpStatus.OK).json({status: true, message:"No synergy found",data:data[0], journal: journal
 			})
 		})
-	}
+	}})
 }).catch(err => {
 			res.status(httpStatus.BAD_REQUEST).json({status: false, message: err})
 		})
