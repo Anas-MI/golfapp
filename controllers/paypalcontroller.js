@@ -58,7 +58,7 @@ router.get("/get", (req, res) => {
 })
 
 // start payment process 
-router.get('/buy' , ( req , res ) => {
+router.post('/buy' , ( req , res ) => {
 	// create payment object 
     var payment = {
             "intent": "authorize",
@@ -73,7 +73,7 @@ router.get('/buy' , ( req , res ) => {
 	},
 	"transactions": [{
 		"amount": {
-			"total": "12",
+			"total": req.body.amount,
 			"currency": "USD"
 		},
 		"description": "sdfd"
