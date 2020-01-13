@@ -73,6 +73,7 @@ router.post('/update/:id', (req, res) => {
 
 //Journal Feed
 router.post("/feed/create", (req, res) => {
+	console.log(req.body)
     let journalFeed = new JournalFeed(
        req.body 
     )
@@ -93,6 +94,15 @@ router.get("/feed/getall", (req, res) => {
     }).catch(err => {
         res.status(httpStatus.BAD_REQUEST).json({status: false, message: err})
     })
+})
+
+//route to get all the journals for app
+router.get("/get/journals", (req, res) => {
+	JournalFeed.find({}).populate("user").populate("questionId").then(data => {
+		res.status(httpStatus.OK).json({status: true, message: "journals fetched ", data})
+	}).catch(err => {
+		res.status(httpStatus.BAD_REQUEST).json({status: false, message: err})
+	})
 })
 
 
