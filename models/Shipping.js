@@ -10,6 +10,10 @@ const shippingSchema = new Schema({
         state: String,
         city: String,
         pincode: String,
+        user:{type:Schema.Types.ObjectId, ref:"User"},
+        payId:String,
+        paid:{type:Boolean, default: false},
+        createdOn:{type:Date, default: Date.now()}
 })
 
 module.exports = mongoose.model('Shipping', shippingSchema)
