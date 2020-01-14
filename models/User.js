@@ -37,7 +37,12 @@ const userSchema = new Schema({
   },
   android_device_token:{type:String},
   ios_device_token:{type:String},
-  device:{type:String}
+  device:{type:String},
+  payId:{type:String},
+  transactionIdBook:String,
+  ebook: {type: Boolean, default: false},
+  book:{type:Boolean, default: false},
+  reciept:{type:Object}
 });
 
 
