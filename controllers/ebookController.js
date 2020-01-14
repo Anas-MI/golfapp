@@ -6,7 +6,7 @@ const keyPublishable = "pk_test_SVGwjErnIO8bMtXItRF8YkBW";
 const keySecret = " sk_test_hoVy16mRDhxHCoNAOAEJYJ4N00pzRH8xK2";
 // const StripeModel = require("./stripe.model");
 const stripe = require("stripe")(keySecret);
-
+const User = require("../models/User")
 let isCardError = response => {
   console.log(response);
   if (response.raw.type === "card_error") {
@@ -28,6 +28,31 @@ router.post("/save/shipping", (req, res) =>{
         res.status(400).json({status: false, message: err})
     })
 })
+
+
+router.get("/validate", (req, res )=> {
+    console.log(req.query);
+    let {accessToken} = req.query;
+    User.findById(accessToken).then(data => {
+        if(data.ebook){
+            res.status(200).json({status: true, message:"validate: true", data})
+        } else {
+            res.status(400).json({status: false, message:"validate: false", data})
+        }
+    }) 
+})
+
+router.post("/inapp", (req, res) => {
+    let {reciept, userId} = req.body;
+    User.findByIdAndUpdate(userId, {$set:{reciept, ebook: true}}).then(
+        data => {
+            res.status(200).json({status: true, message:"Success", data})
+        }
+    ).catch(err => {
+        res.status(400).json({status: false, message: err})
+    })
+})
+
 
 router.post("/charge", (req, res) => {
 console.log(req.body)
