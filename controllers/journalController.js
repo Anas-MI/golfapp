@@ -97,7 +97,8 @@ router.get("/feed/getall", (req, res) => {
 })
 
 //route to get all the journals for app
-router.get("/get/journals", (req, res) => {
+router.post("/get/journals", (req, res) => {
+	console.log({"journls":req.body})
 	JournalFeed.find({}).populate("user").populate("questionId").then(data => {
 		res.status(httpStatus.OK).json({status: true, message: "journals fetched ", data})
 	}).catch(err => {
