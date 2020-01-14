@@ -5,7 +5,8 @@ var path = require('path');
 var app = express(); 
 var paypal = require('paypal-rest-sdk');
 const router = express.Router();
-
+const User = require("../models/User")
+const Shipping = require("../models/Shipping")
 
 paypal.configure({
   'mode': 'sandbox', //Change this to live 
@@ -59,6 +60,7 @@ router.get("/get", (req, res) => {
 
 // start payment process 
 router.post('/buy' , ( req , res ) => {
+    console.log(req.body)
 	// create payment object 
     var payment = {
             "intent": "authorize",
@@ -68,8 +70,8 @@ router.post('/buy' , ( req , res ) => {
 	"redirect_urls": {
 		// "return_url": process.env.CLIENTURL + "/checkout",
         // "cancel_url": process.env.CLIENTURL + "/checkout/error"
-        "return_url":   "http://localhost:4000/success-paypal",
-		"cancel_url":  "http://localhost:4000/cancel-paypal"
+        "return_url":   "http://localhost:3000/success",
+		"cancel_url":  "http://localhost:3000/cancel"
 	},
 	"transactions": [{
 		"amount": {
@@ -85,6 +87,9 @@ router.post('/buy' , ( req , res ) => {
         .then( ( transaction ) => {
             console.log(transaction)
             var id = transaction.id; 
+            User.findByIdAndUpdate(req.body.userId, {$set:{payId:id}}).catch(console.log)
+            Shipping.findByIdAndUpdate(req.body.shippingId, {$set:{payId:id}}).catch(console.log)
+
             var links = transaction.links;
             var counter = links.length; 
             while( counter -- ) {
@@ -102,13 +107,28 @@ router.post('/buy' , ( req , res ) => {
             console.log( err ); 
             res.json({status: false, error: err})
         });
-}); 
+})
+; 
 
 
 // success page 
-router.get('/success' , (req ,res ) => {
-    console.log(req.query); 
-  res.json({status: true})
+router.post('/success' , (req ,res ) => {
+
+    //this will be returned from the app
+    // paymentId,
+    //     token,
+    //     PayerID
+
+    console.log(req.body); 
+    User.findOneAndUpdate({payId: req.body.paymentId}, {$set:{book: true, transactionIdBook: req.body.PayerID}}).then(data => {
+        Shipping.findOneAndUpdate({payId: req.body.paymentId}, {$set:{paid:true}}).catch(console.log)
+        res.status(200).json({status: true, message:"Success", data})
+        console.log({data})
+    }).catch(err => {
+        console.log(er)
+        res.status(400).json({status: false, message:err})
+    })
+
 })
 
 // error page 
