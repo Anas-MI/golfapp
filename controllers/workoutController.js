@@ -96,4 +96,17 @@ router.post("/validate", (req, res) => {
 	})
 })
 
+
+//Add to subscriptions on successful payment
+router.post("/subscribe", (req, res) => {
+	
+	let {videoId, userId} = req.body;
+	
+	Workout.findByIdAndUpdate(videoId, {$push:{subscriptions:userId}}).then(data => {
+		res.status(200).json({status: true, message:"Subscription added", data})
+	}).catch(err => {
+		res.status(400).json({status: false, message: err})
+	})
+})
+
 module.exports = router;
