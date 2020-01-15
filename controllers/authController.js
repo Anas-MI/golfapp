@@ -29,7 +29,7 @@ router.post('/login', function(req, res) {
             audience: application
           }
           const signedToken = jwtModule.sign(payload, signingOptions)
-          return res.status(httpStatus.OK).send({ auth: true, id:_id, token: signedToken });
+          return res.status(httpStatus.OK).send({ auth: true, id:_id, token: signedToken,is_email_notification: user.is_email_notification, is_push_notification: user.is_push_notification, created_at: user.created_at.toString() });
         } else {
           return res.status(httpStatus.UNAUTHORIZED).send({ auth: false, token: null });
         }
@@ -44,7 +44,7 @@ router.post('/login', function(req, res) {
 
 
 router.post('/register', function(req, res) {
-  const {application, device, email, name, password, state,phone,age,country, ios_token,android_token} = req.body
+  const {application, device, email, name, password, state,phone,age,country, android_device_token,ios_device_token} = req.body
   if (!application || !email || !name || !password) {
     return res.status(httpStatus.BAD_REQUEST).send({ registered: false, error: 'Invalid parameters in request' });
   }
@@ -57,13 +57,21 @@ router.post('/register', function(req, res) {
       phone,
       age,
       country,
-      ios_token,
-      android_token,
+      android_device_token,
+      ios_device_token,
       device
     },
     function (error, user) {
       if (error) {
-        const message = `Server error: ${error.message}`
+        console.log(error.code)
+        let message;
+        if(error.code === 11000){
+          message = `A User with this email Id already exists`
+           
+        } else {
+
+           message = `Server error: ${error.message}`
+        }
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).send({ registered: false, error: message });
       }
       // if user created, return a signed token
