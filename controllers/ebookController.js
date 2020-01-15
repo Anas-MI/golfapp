@@ -43,8 +43,9 @@ router.get("/validate", (req, res )=> {
 })
 
 router.post("/inapp", (req, res) => {
+    console.log({"from inapp ": req.body })
     let {reciept, userId} = req.body;
-    User.findByIdAndUpdate(userId, {$set:{reciept, ebook: true}}).then(
+    User.findByIdAndUpdate(userId, {$push:{reciept},$set:{ ebook: true}}).then(
         data => {
             res.status(200).json({status: true, message:"Success", data})
         }

@@ -42,7 +42,7 @@ const userSchema = new Schema({
   transactionIdBook:String,
   ebook: {type: Boolean, default: false},
   book:{type:Boolean, default: false},
-  reciept:{type:Object}
+  reciept:[{type:Object}]
 });
 
 

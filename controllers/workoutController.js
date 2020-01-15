@@ -81,7 +81,7 @@ router.post("/change/:id", (req, res) => {
 
 //Validate a workout video
 router.post("/validate", (req, res) => {
-	
+	console.log({"From workout validate": req.body})
 	let {userId, videoId} = req.body
 	
 	Workout.find({ "subscriptions": { "$in": [userId] },_id: videoId}).then(data => {
