@@ -12,7 +12,8 @@ const workoutSchema = new Schema({
 	isPaid: { type: Boolean },
 	thumbnail: { type: String },
     day: { type: String },
-    position:{type:Number}
+	position:{type:Number},
+	subscriptions:[]
 });
 
 module.exports = mongoose.model('WorkOut', workoutSchema);
