@@ -85,4 +85,19 @@ router.post("/settings", (req, res) => {
 
 })
 
+router.post("/forget", (req, res) => {
+  console.log(req.body)
+  let {email} = req.body;
+  User.findOne({email}).then(data => {
+    console.log({data})
+    if( data !== null){
+    res.status(200).json({status: true, message: "Reset Password email sent!" })
+  } else if(data === null){
+      res.status(400).json({status: false, message:"User not found"})
+  }}).catch(err => 
+    {
+      res.status(400).json({status: false, message: err})
+    })
+})
+
 module.exports = router;
