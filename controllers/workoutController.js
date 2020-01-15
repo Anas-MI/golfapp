@@ -78,4 +78,22 @@ router.post("/change/:id", (req, res) => {
     })
 })
 
+
+//Validate a workout video
+router.post("/validate", (req, res) => {
+	
+	let {userId, videoId} = req.body
+	
+	Workout.find({ "subscriptions": { "$in": [userId] },_id: videoId}).then(data => {
+		console.log(data.length)
+		if(data.length >= 1){
+			res.status(200).json({status: true, message:"Subscription found", data})
+		} else if(data.length < 1){
+			res.status(400).json({status: false, message:"Subscription not found"})
+		}
+	}).catch(err => {
+		res.status(400).json({status: false, message: err})
+	})
+})
+
 module.exports = router;
