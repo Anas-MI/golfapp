@@ -9,18 +9,39 @@ const Favorites = require('../models/Favorites');
 router.post('/create', (req, res) => {
  
 	console.log(req.body)
-	let favorites = new Favorites(
-	req.body
-	);
+	let {user, synergistic} = req.body;
+	Favorites.findOne({user, synergistic}).then(data => {
+		console.log({"favorites": data})
+		// console.log(data.length)
+		if(data !== null){
+			console.log("inside remove block - favorites")
+			Favorites.findByIdAndRemove(data._id)
+			.then((data) => {
+				res.status(httpStatus.OK).json({ status: true, message: 'Successfully removed from Favourite', data });
+		
+			})
+			.catch((err) => {
+				
+				res.status(httpStatus.BAD_REQUEST).json({ status: false, message: err });
+			});
 
-	favorites
-		.save()
-		.then((data) => {
-			res.status(httpStatus.OK).json({ status: true, message: 'Success!', data });
-		})
-		.catch((err) => {
-			res.status(httpStatus.BAD_REQUEST).json({ status: false, message: err });
-		});
+		} else if(data === null){
+			let favorites = new Favorites(
+				req.body
+				);
+			
+				favorites
+					.save()
+					.then((data) => {
+						res.status(httpStatus.OK).json({ status: true, message: 'Success!', data });
+					})
+					.catch((err) => {
+						res.status(httpStatus.BAD_REQUEST).json({ status: false, message: err });
+					});
+		}
+	})
+
+	
 });
 
 //Route to get all favorites
