@@ -68,6 +68,16 @@ router.post("/delete", (req, res) =>{
   })	
 })
 
+//Route for the app to update the user settings
+router.post("/settings", (req, res) => {
+  let {accessToken,
+  isEmailNotification,
+  isPushNotification} = req.body;
 
+  User.findByIdAndUpdate(accessToken, {$set:{
+    
+  }})
+
+})
 
 module.exports = router;

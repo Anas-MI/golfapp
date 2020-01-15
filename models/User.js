@@ -42,7 +42,10 @@ const userSchema = new Schema({
   transactionIdBook:String,
   ebook: {type: Boolean, default: false},
   book:{type:Boolean, default: false},
-  reciept:[{type:Object}]
+  reciept:[{type:Object}],
+  is_email_notification:{type:Boolean, default: true},
+  is_push_notification:{type:Boolean, default: true},
+  created_at:{type:Date, default: Date.toString()}
 });
 
 
