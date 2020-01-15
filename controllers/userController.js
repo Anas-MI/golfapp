@@ -75,8 +75,13 @@ router.post("/settings", (req, res) => {
   isPushNotification} = req.body;
 
   User.findByIdAndUpdate(accessToken, {$set:{
-    
-  }})
+    is_email_notification:isEmailNotification,
+    is_push_notification:isPushNotification
+  }}).then(data => {
+    res.status(200).json({status: true, message:"Settings saved!", data})
+  }).catch(err => {
+    res.status(400).json({status: false, message: err})
+  })
 
 })
 
