@@ -57,4 +57,10 @@ app.use("/api/v1/paypal", PaypalController)
 const ebookController = require("./controllers/ebookController")
 app.use("/api/v1/ebook", ebookController)
 
+const shippingController = require("./controllers/shippingController")
+app.use("/api/v1/ship", shippingController)
+
+const chartcontroller = require("./controllers/charts")
+app.use("/api/v1/chart", chartcontroller)
+
 module.exports = app;
