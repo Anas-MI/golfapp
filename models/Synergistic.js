@@ -11,7 +11,8 @@ const synergisticSchema = new Schema({
 	thinkGolf: { type: String },
 	makeMeSmile: { type: String },
 	week: { type: String },
-	day: { type: String }
+	day: { type: String },
+	entries:[]
 });
 
 module.exports = mongoose.model('Synergistic', synergisticSchema);
