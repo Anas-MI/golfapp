@@ -14,6 +14,9 @@ require('dotenv').config()
 //Morgan
 app.use(morgan('dev'));
 
+//Serve static files
+app.use(express.static(__dirname + '/public'));
+
 //Cors stuff
 app.use(cors({ origin: process.env.CLIENT_URL }));
 
