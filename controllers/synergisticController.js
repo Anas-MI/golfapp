@@ -148,7 +148,7 @@ router.post("/update/:id", upload.any(), (req, res) => {
 	let body = JSON.parse(req.body.body);
 	// body.entries = entries;
   console.log({body})
-  Synergistic.findByIdAndUpdate(req.params.id, {body, $push:{entries}}, { new: true })
+  Synergistic.findByIdAndUpdate(req.params.id, {...body, $push:{entries}}, { new: true })
     .then(data => {
       res
         .status(httpStatus.OK)

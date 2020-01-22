@@ -8,6 +8,7 @@ const synergisticSchema = new Schema({
 	explanation: { type: String },
 	nutritionTip: { type: String },
 	thoughts: { type: String },
+	thoughtsBy: { type: String },
 	thinkGolf: { type: String },
 	makeMeSmile: { type: String },
 	week: { type: String },

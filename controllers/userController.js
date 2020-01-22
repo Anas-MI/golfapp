@@ -2,7 +2,30 @@ const express = require('express');
 const router = express.Router();
 const httpStatus = require('lib/httpStatus');
 const User = require('../models/User');
+const multer = require("multer");
+const path = require("path");
 
+var storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "./public/images/uploads");
+  },
+  filename: (req, file, cb) => {
+    let filename = file.originalname.split(".")[0].replace(/ /g, "-");
+    cb(null, filename + "-" + Date.now() + path.extname(file.originalname));
+  }
+});
+
+var upload = multer({
+  storage: storage,
+  fileFilter: function(req, file, callback) {
+    var ext = path.extname(file.originalname);
+    if (ext !== ".png" && ext !== ".jpg" && ext !== ".jpeg" && ext !== ".pdf" && ext !== ".mp4" && ext !==".mov") {
+      req.fileValidationError = "Forbidden extension";
+      return callback(null, false, req.fileValidationError);
+    }
+    callback(null, true);
+  }
+});
 router.post('/', function (req, res) {
   User.create({
       name : req.body.name,
@@ -49,6 +72,7 @@ router.put('/:id', function (req, res) {
 //Route to update user details
 router.post("/update", (req, res) => {
   const { id} = req.body;
+  console.log(req.files)
   User.findByIdAndUpdate(id, req.body, {new: true}).then(data => {
     return res.status(httpStatus.OK).json({status: true, message: "User Details Updated", data})
   }).catch(
@@ -57,6 +81,39 @@ router.post("/update", (req, res) => {
     }
   )
 })
+
+//Upload media files
+router.post("/update/media/:id", upload.any() ,(req, res) => {
+  console.log(req.files)
+  let media = [];
+  req.files.map((item, index) => {
+    if (item.fieldname == "media") {
+      media.push(item.path);
+    } else {
+    }
+  });
+  User.findByIdAndUpdate(req.params.id, {$push:{media}}, { new: true })
+  .then(data => {
+    res
+      .status(httpStatus.OK)
+      .json({ status: true, message: "User Updated", data });
+  })
+  .catch(err => {
+    res.status(httpStatus.BAD_REQUEST).json({ status: false, message: err });
+  });
+})
+
+//Route to delete an image
+router.post("/update/delete/:id", (req, res) => {
+	console.log(req.body)
+	User.findByIdAndUpdate(req.params.id, {$pull: {media: req.body.toDelete }}).then(
+		res.send(200)
+	).catch(err => {
+		res.status(400).json({status: false, message: err})
+		console.log(err)
+	})
+})
+
 
 //Route to delete user model
 router.post("/delete", (req, res) =>{

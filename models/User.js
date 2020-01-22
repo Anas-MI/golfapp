@@ -45,7 +45,8 @@ const userSchema = new Schema({
   reciept:[{type:Object}],
   is_email_notification:{type:Boolean, default: true},
   is_push_notification:{type:Boolean, default: true},
-  created_at:{type:Date, default: Date.now()}
+  created_at:{type:Date, default: Date.now()},
+  media:[]
 });
 
 
