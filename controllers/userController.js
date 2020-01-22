@@ -19,7 +19,7 @@ var upload = multer({
   storage: storage,
   fileFilter: function(req, file, callback) {
     var ext = path.extname(file.originalname);
-    if (ext !== ".png" && ext !== ".jpg" && ext !== ".jpeg" && ext !== ".pdf" && ext !== ".mp4" && ext !==".mov") {
+    if (ext !== ".png" && ext !== ".jpg" && ext !== ".jpeg" && ext !== ".pdf" && ext !== ".mp4" && ext !==".mov" && ext !== ".gif") {
       req.fileValidationError = "Forbidden extension";
       return callback(null, false, req.fileValidationError);
     }
@@ -80,6 +80,18 @@ router.post("/update", (req, res) => {
       return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({status: false, message:`Server error: ${err.message}`});
     }
   )
+})
+
+//Send Fit goals
+router.get("/goals/:id", (req, res) => {
+  console.log("innn")
+  User.findById(req.params.id).then(
+    data => {
+      res.status(200).json({status: true, message:"Goals fetched", data: data.media})
+    }
+  ).catch(error => {
+    res.status(400).json({status: false, message: error})
+  })
 })
 
 //Upload media files

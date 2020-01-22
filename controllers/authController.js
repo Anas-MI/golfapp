@@ -44,6 +44,7 @@ router.post('/login', function(req, res) {
 
 
 router.post('/register', function(req, res) {
+  console.log(req.body)
   const {application, device, email, name, password, state,phone,age,country, android_device_token,ios_device_token} = req.body
   if (!application || !email || !name || !password) {
     return res.status(httpStatus.BAD_REQUEST).send({ registered: false, error: 'Invalid parameters in request' });
@@ -78,7 +79,7 @@ router.post('/register', function(req, res) {
       const payload = {id: user._id}
       const options = {subject: email, audience: application}
       const signedToken = jwtModule.sign(payload, options)
-      res.status(httpStatus.OK).send({ registered: true, token: signedToken });
+      res.status(httpStatus.OK).send({ registered: true, token: signedToken, id: user._id, is_email_notification: user.is_email_notification, is_push_notification: user.is_push_notification, created_at: user.created_at.toString() });
     });
 
 });
