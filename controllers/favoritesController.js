@@ -44,6 +44,17 @@ router.post('/create', (req, res) => {
 	
 });
 
+//Route to get all favorites for app
+router.get('/getall/api/:id', (req, res) => {
+	Favorites.find({user:req.params.id}).populate("user").populate("synergistic")
+		.then((data) => {
+			res.status(httpStatus.OK).json({ status: true, message: 'Data fetched!', data });
+		})
+		.catch((err) => {
+			res.status(httpStatus.BAD_REQUEST).json({ status: false, message: err });
+		});
+});
+
 //Route to get all favorites
 router.get('/getall', (req, res) => {
 	Favorites.find({}).populate("user").populate("synergistic")

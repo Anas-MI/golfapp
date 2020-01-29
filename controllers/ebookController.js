@@ -6,6 +6,7 @@ const keyPublishable = "pk_test_SVGwjErnIO8bMtXItRF8YkBW";
 const keySecret = " sk_test_hoVy16mRDhxHCoNAOAEJYJ4N00pzRH8xK2";
 // const StripeModel = require("./stripe.model");
 const stripe = require("stripe")(keySecret);
+const Workout = require("../models/Workout")
 const User = require("../models/User")
 let isCardError = response => {
   console.log(response);
@@ -57,13 +58,20 @@ router.post("/inapp", (req, res) => {
 
 router.post("/charge", (req, res) => {
 console.log(req.body)
+console.log(req.body.type)
+if(req.body.type === "ebook"){
+    console.log("this is a ebook")
+}
         let {
             number,
             exp_month,
             exp_year,
             cvc,
             amount,
-            shippingId
+            shippingId,
+            type, 
+            userId,
+            videoId
         } = req.body;
 
 //          name: 'jbjbjb',
@@ -112,7 +120,19 @@ console.log(req.body)
                             if (error) {
                                 res.status(400).json({ status: false, message: error });
                             } else if (charge) {
-
+                                if(type == "ebook"){
+                                    console.log("its a ebook ")
+                                    User.findByIdAndUpdate(userId, {$set:{ebook:true}}).then(data => {
+                                        res.status(200).json({status: true, message:"ebook purchased", data})
+                                    }).catch(console.log)
+                                } else if(type == "workout"){
+                                    console.log("its a workout video")
+                                    Workout.findByIdAndUpdate(videoId, {$push:{subscriptions:userId}}).then(data => {
+                                        res.status(200).json({status: true, message:"Subscription added", data})
+                                    }).catch(err => {
+                                        res.status(400).json({status: false, message: err})
+                                    })
+                                } else {
                                 Shipping.findByIdAndUpdate(shippingId, {$set:{paid: true}}).then(ship => {
                                     res.status(200).json({
                                         status: true,
@@ -123,7 +143,7 @@ console.log(req.body)
                                     console.log(err)
                                     res.status(400).json({ status: false, message: error });
 
-                                })
+                                })}
 
 
                                

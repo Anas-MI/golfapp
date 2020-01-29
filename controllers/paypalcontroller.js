@@ -6,6 +6,8 @@ var app = express();
 var paypal = require('paypal-rest-sdk');
 const router = express.Router();
 const User = require("../models/User")
+const Workout = require("../models/Workout")
+
 const Shipping = require("../models/Shipping")
 
 paypal.configure({
@@ -58,6 +60,114 @@ router.get("/get", (req, res) => {
 
 })
 
+// start payment process  FOR ANDROIDDDDDDDDDD
+router.post('/buy/ebook' , ( req , res ) => {
+    console.log(req.body)
+    let {id}= req.body;
+	// create payment object 
+    var payment = {
+            "intent": "authorize",
+	"payer": {
+		"payment_method": "paypal"
+	},
+	"redirect_urls": {
+		// "return_url": process.env.CLIENTURL + "/checkout",
+        // "cancel_url": process.env.CLIENTURL + "/checkout/error"
+        "return_url":   "http://localhost:3000/success?userid=" + id +"&type=ebook",
+		"cancel_url":  "http://18.219.46.56/cancel"
+	},
+	"transactions": [{
+		"amount": {
+			"total": req.body.amount,
+			"currency": "USD"
+		},
+		"description": "sdfd"
+	}]
+    }
+	
+	// call the create Pay method 
+    createPay( payment ) 
+        .then( ( transaction ) => {
+            console.log(transaction)
+            var id = transaction.id; 
+            // Shipping.findByIdAndUpdate(req.body.shippingId, {$set:{payId:id}}).catch(console.log)
+
+            var links = transaction.links;
+            var counter = links.length; 
+            while( counter -- ) {
+                if ( links[counter].method == 'REDIRECT') {
+					// redirect to paypal where user approves the transaction 
+                    // return res.redirect( links[counter].href )
+                    return res.send( JSON.stringify({
+                        success: true,
+                        url: links[counter].href
+                    }) )
+                }
+            }
+        })
+        .catch( ( err ) => { 
+            console.log( err ); 
+            res.json({status: false, error: err})
+        });
+})
+; 
+
+// start payment process  FOR ANDROIDDDDDDDDDD
+router.post('/buy/workout' , ( req , res ) => {
+    console.log(req.body)
+    let { videoId, id} = req.body;
+    let url = `http://localhost:3000/success?type=workout&videoid=`+ videoId + '&userid=' + id;
+	// create payment object 
+    var payment = {
+            "intent": "authorize",
+	"payer": {
+		"payment_method": "paypal"
+	},
+	"redirect_urls": {
+		// "return_url": process.env.CLIENTURL + "/checkout",
+        // "cancel_url": process.env.CLIENTURL + "/checkout/error"
+        // "return_url":   "http://18.219.46.56/success",
+        // "cancel_url":  "http://18.219.46.56/cancel"
+        "return_url":   url,
+		"cancel_url":  "http://localhost:3000/cancel"
+	},
+	"transactions": [{
+		"amount": {
+			"total": req.body.amount,
+			"currency": "USD"
+		},
+		"description": "sdfd"
+	}]
+    }
+	
+	// call the create Pay method 
+    createPay( payment ) 
+        .then( ( transaction ) => {
+            console.log(transaction)
+            var id = transaction.id; 
+            // User.findByIdAndUpdate(req.body.id, {$set:{ebook:true}}).catch(console.log)
+            // Shipping.findByIdAndUpdate(req.body.shippingId, {$set:{payId:id}}).catch(console.log)
+           
+            var links = transaction.links;
+            var counter = links.length; 
+            while( counter -- ) {
+                if ( links[counter].method == 'REDIRECT') {
+					// redirect to paypal where user approves the transaction 
+                    // return res.redirect( links[counter].href )
+                    return res.send( JSON.stringify({
+                        success: true,
+                        url: links[counter].href
+                    }) )
+                }
+            }
+        })
+        .catch( ( err ) => { 
+            console.log( err ); 
+            res.json({status: false, error: err})
+        });
+})
+;
+
 // start payment process 
 router.post('/buy' , ( req , res ) => {
     console.log(req.body)
@@ -70,8 +180,8 @@ router.post('/buy' , ( req , res ) => {
 	"redirect_urls": {
 		// "return_url": process.env.CLIENTURL + "/checkout",
         // "cancel_url": process.env.CLIENTURL + "/checkout/error"
-        "return_url":   "http://localhost:3000/success",
-		"cancel_url":  "http://localhost:3000/cancel"
+        "return_url":   "http://18.219.46.56/success",
+		"cancel_url":  "http://18.219.46.56/cancel"
 	},
 	"transactions": [{
 		"amount": {
@@ -110,6 +220,34 @@ router.post('/buy' , ( req , res ) => {
 })
 ; 
 
+router.post('/successworkout' , (req ,res ) => {
+
+    //this will be returned from the app
+    // paymentId,
+    //     token,
+    //     PayerID
+
+    console.log(req.body); 
+    Workout.findByIdAndUpdate(req.body.videoId, {$push:{subscriptions:req.body.userId}}).then(data => {
+        res.status(200).json({status: true, message:"Subscription added", data})
+    }).catch(err => {
+        res.status(400).json({status: false, message: err})
+    })
+})
+
+router.post('/successebook' , (req ,res ) => {
+    console.log(req.body); 
+    //this will be returned from the app
+    // paymentId,
+    //     token,
+    //     PayerID
+    User.findByIdAndUpdate(req.body.id, {$set:{ebook:true}}).then(data => {
+        res.status(200).json({status: true, message:"ebook purchases", data})
+    }).catch(console.log)
+
+
+ 
+})
 
 // success page 
 router.post('/success' , (req ,res ) => {

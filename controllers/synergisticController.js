@@ -20,7 +20,7 @@ var storage = multer.diskStorage({
 var upload = multer({
   storage: storage,
   fileFilter: function(req, file, callback) {
-    var ext = path.extname(file.originalname);
+    var ext = path.extname(file.originalname).toLowerCase();
     if (ext !== ".png" && ext !== ".jpg" && ext !== ".jpeg" && ext !== ".pdf") {
       req.fileValidationError = "Forbidden extension";
       return callback(null, false, req.fileValidationError);
