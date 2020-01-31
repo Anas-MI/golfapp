@@ -6,6 +6,136 @@ const Journal = require("../models/Journal");
 const moment = require("moment");
 const multer = require("multer");
 const path = require("path");
+const fs = require("fs");
+const User = require("../models/User");
+const ejs = require("ejs");
+
+//nodemailer
+var nodemailer = require("nodemailer");
+var sgTransport = require("nodemailer-sendgrid-transport");
+
+// api key https://sendgrid.com/docs/Classroom/Send/api_keys.html
+// var options = {
+//     auth: {
+//         api_key: 'SENDGRID_PASSWORD'
+//     }
+// }
+
+// or
+// USERNAME=apikey
+// PASSWORD='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'
+// username + password
+var options = {
+  auth: {
+    api_key:
+      // "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"
+      process.env.API_KEY
+    }
+};
+
+
+
+var mailer = nodemailer.createTransport(sgTransport(options));
+
+var schedule = require('node-schedule');
+ 
+var j = schedule.scheduleJob('0 1 * * *', function(){
+ async function test() {
+  let today = moment()
+    .format("dddd")
+    .toString()
+    .toLowerCase();
+
+  if (!today === "saturday" || !today === "sunday") {
+    let email;
+    //Looping through all the users
+    User.find().then(users => {
+      users.map(user => {
+        //Getting info about a particular user
+        let createdOn = user.created_at,
+          emailTo = user.email;
+        var now = moment();
+        if (user.is_email_notification) {
+          //Getting the the current week of the user
+          moment.fn.durationInWeeks = function(fromDate, toDate) {
+            var days = toDate.diff(fromDate, "days");
+            var weeks = toDate.diff(fromDate, "weeks");
+            console.log({ days });
+            console.log({ weeks });
+            let query;
+            //if number of weeks is less than 52
+            if (weeks <= 52) {
+              if (days <= 7) {
+                query = {
+                  week: 1,
+                  day: days
+                };
+              } else if (days >= 7) {
+                let day = days - weeks * 7;
+                query = {
+                  week: weeks + 1,
+                  day
+                };
+              }
+            } else if (weeks > 52) {
+              let day = days - weeks * 7;
+              let week = weeks % 52;
+              if (week === 0) {
+                week = 1;
+              }
+              query = {
+                week,
+                day
+              };
+            }
+
+            console.log({ query });
+
+            let dayToFind = moment()
+              .format("dddd")
+              .toString()
+              .toLowerCase();
+            console.log({ dayToFind });
+
+            Synergistic.findOne({ week: query.week, day: dayToFind }).then(
+              async synergy => {
+                console.log({ synergy });
+                let images = synergy.entries.map(e => {
+                  return e.substring(7);
+                });
+                let synergyTemplate = await ejs.renderFile(
+                  __dirname + "/index.ejs",
+                  { data: synergy, images }
+                );
+                var email = {
+                  to: emailTo,
+                  from: "info@fitforgolfusa.com",
+                  subject: "Today's Synergistic Golf Goals for YOU!",
+
+                  html: synergyTemplate
+                };
+                mailer.sendMail(email, function(err, res) {
+                  if (err) {
+                    console.log(err);
+                  }
+                  console.log(res);
+                });
+              }
+            );
+          };
+        }
+        console.log(moment().durationInWeeks(createdOn, now)); // 21 weeks
+      });
+    });
+  }
+
+}
+test()
+});
+
+
+
+
 
 var storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -110,14 +240,16 @@ router.delete("/delete/:id", (req, res) => {
 
 //Route to delete an image
 router.post("/delete/image/:id", (req, res) => {
-	console.log(req.body)
-	Synergistic.findByIdAndUpdate(req.params.id, {$pull: {entries: req.body.toDelete }}).then(
-		res.send(200)
-	).catch(err => {
-		res.status(400).json({status: false, message: err})
-		console.log(err)
-	})
-})
+  console.log(req.body);
+  Synergistic.findByIdAndUpdate(req.params.id, {
+    $pull: { entries: req.body.toDelete }
+  })
+    .then(res.send(200))
+    .catch(err => {
+      res.status(400).json({ status: false, message: err });
+      console.log(err);
+    });
+});
 
 //Route to get a single post
 router.get("/:id", (req, res) => {
@@ -134,21 +266,25 @@ router.get("/:id", (req, res) => {
 
 //Route tp Update a post
 router.post("/update/:id", upload.any(), (req, res) => {
-	console.log(req)
-	console.log(req.files)
+  console.log(req);
+  console.log(req.files);
 
-	let entries = [];
-	req.files.map((item, index) => {
-	  if (item.fieldname == "synergy") {
-		entries.push(item.path);
-	  } else {
-	  }
-	});
-  
-	let body = JSON.parse(req.body.body);
-	// body.entries = entries;
-  console.log({body})
-  Synergistic.findByIdAndUpdate(req.params.id, {...body, $push:{entries}}, { new: true })
+  let entries = [];
+  req.files.map((item, index) => {
+    if (item.fieldname == "synergy") {
+      entries.push(item.path);
+    } else {
+    }
+  });
+
+  let body = JSON.parse(req.body.body);
+  // body.entries = entries;
+  console.log({ body });
+  Synergistic.findByIdAndUpdate(
+    req.params.id,
+    { ...body, $push: { entries } },
+    { new: true }
+  )
     .then(data => {
       res
         .status(httpStatus.OK)
@@ -257,14 +393,12 @@ router.post("/get/synergy", (req, res) => {
               let dataWithJournal = { journal, data2 };
               console.log({ dataWithJournal });
               console.log({ sss: data[0] });
-              res
-                .status(httpStatus.OK)
-                .json({
-                  status: true,
-                  message: "No synergy found",
-                  data: data[0],
-                  journal: journal
-                });
+              res.status(httpStatus.OK).json({
+                status: true,
+                message: "No synergy found",
+                data: data[0],
+                journal: journal
+              });
             });
           }
         });
