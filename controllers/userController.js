@@ -4,6 +4,21 @@ const httpStatus = require('lib/httpStatus');
 const User = require('../models/User');
 const multer = require("multer");
 const path = require("path");
+const bcrypt = require('bcryptjs');
+//nodemailer
+var nodemailer = require("nodemailer");
+var sgTransport = require("nodemailer-sendgrid-transport");
+
+
+var options = {
+  auth: {
+    api_key:
+      // "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"
+      process.env.API_KEY
+    }
+};
+var mailer = nodemailer.createTransport(sgTransport(options));
+
 
 var storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -52,6 +67,23 @@ router.get('/:id', function (req, res) {
     if (!user) return res.status(httpStatus.NOT_FOUND).send('User not found');
     res.status(httpStatus.OK).send(user);
   }).select('-password -__v');
+});
+
+
+router.post('/reset', (req, res) => {
+  console.log(req.body);
+  const hashedPassword = bcrypt.hashSync(req.body.password, 8);
+  User.findByIdAndUpdate(req.body.userId, {$set:{password: hashedPassword}}).then(data => {
+    res.status(200).json({status: true, message:"Password updated", data })
+  // let htmlData = `<p>Click <a href="http://app.synergisticgolf.com/resetpassword?token=">here</a> to reset your password </p>`
+
+
+ 
+  
+  }).catch(error => {
+    console.log(error)
+    res.status(400).json({status: false, message: error})
+  })
 });
 
 router.delete('/:id', function (req, res) {
@@ -161,6 +193,24 @@ router.post("/forget", (req, res) => {
     console.log({data})
     if( data !== null){
     res.status(200).json({status: true, message: "Reset Password email sent!" })
+    let id = data._id;  
+    var email = {
+        to: data.email,
+        from: "info@fitforgolfusa.com",
+        subject: `Reset Your Password - Synergistic Golf`,
+  
+        html: `<p>Click <a href=http://app.synergisticgolf.com/resetpassword?token=${id}>here</a> to reset your password </p>`
+      };
+  
+      console.log({email})
+      mailer.sendMail(email, function(err, res) {
+        if (err) {
+          console.log(err);
+        }
+        console.log({res})
+  
+    
+      });
   } else if(data === null){
       res.status(400).json({status: false, message:"User not found"})
   }}).catch(err => 
