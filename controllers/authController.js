@@ -8,6 +8,21 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const config = require('../config/index');
 
+var nodemailer = require("nodemailer");
+var sgTransport = require("nodemailer-sendgrid-transport");
+var options = {
+  auth: {
+    api_key:
+      // "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"
+      process.env.API_KEY
+    }
+};
+
+var mailer = nodemailer.createTransport(sgTransport(options));
+
+
+
+
 router.post('/login', function(req, res) {
   const {application, email, password} = req.body
   if (!application || !email || !password) {
@@ -79,7 +94,25 @@ router.post('/register', function(req, res) {
       const payload = {id: user._id}
       const options = {subject: email, audience: application}
       const signedToken = jwtModule.sign(payload, options)
+
       res.status(httpStatus.OK).send({ registered: true, token: signedToken, id: user._id, is_email_notification: user.is_email_notification, is_push_notification: user.is_push_notification, created_at: user.created_at.toString() });
+    
+      var emailToSend = {
+        to: user.email,
+        from: "info@fitforgolfusa.com",
+        subject: "You have been successfully registered - Synergistic Golf",
+        text: "Thank you for registering with us"
+      };
+  
+      // console.log({email})
+      mailer.sendMail(emailToSend, function(err, res) {
+        if (err) {
+          console.log(err);
+        }
+        console.log({res})
+  
+    
+      });
     });
 
 });
