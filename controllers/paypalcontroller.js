@@ -7,16 +7,29 @@ var paypal = require('paypal-rest-sdk');
 const router = express.Router();
 const User = require("../models/User")
 const Workout = require("../models/Workout")
+const ejs = require("ejs");
+
+//nodemailer
+var nodemailer = require("nodemailer");
+var sgTransport = require("nodemailer-sendgrid-transport");
 
 const Shipping = require("../models/Shipping")
 
 paypal.configure({
-  'mode': 'sandbox', //Change this to live 
-  'host': 'api.sandbox.paypal.com',
-  'client_id': 'AUC6qv21q0FeTi0Wqo2p6BVBrFumkA6te3RbBNrmpxpgnuMn-oWAZQtB-CpXy6ZOoDSYxKiwEwBhi3tT',
-  'client_secret': 'EEcdrIwBiLseZwYgUqbe2aYTxbPi-KuZSpHfa0UTBr04tjMD2qZNHWCo71cQI0K49MdXvt_OWE1ZspIF' 
+  'mode':  process.env.MODE, //Change this to live 
+  'host':  process.env.HOST,
+  'client_id':  process.env.CLIENT_ID,
+  'client_secret':  process.env.CLIENT_SECRET 
 });
 
+var options = {
+    auth: {
+      api_key:
+        // "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"
+        process.env.API_KEY
+    }
+  };
+  var mailer = nodemailer.createTransport(sgTransport(options));
 
 router.get("/get", (req, res) => {
 
@@ -73,7 +86,7 @@ router.post('/buy/ebook' , ( req , res ) => {
 	"redirect_urls": {
 		// "return_url": process.env.CLIENTURL + "/checkout",
         // "cancel_url": process.env.CLIENTURL + "/checkout/error"
-        "return_url":   "http://localhost:3000/success?userid=" + id +"&type=ebook",
+        "return_url":   "http://18.219.46.56/success?userid=" + id +"&type=ebook",
 		"cancel_url":  "http://18.219.46.56/cancel"
 	},
 	"transactions": [{
@@ -116,7 +129,7 @@ router.post('/buy/ebook' , ( req , res ) => {
 router.post('/buy/workout' , ( req , res ) => {
     console.log(req.body)
     let { videoId, id} = req.body;
-    let url = `http://localhost:3000/success?type=workout&videoid=`+ videoId + '&userid=' + id;
+    let url = `http://18.219.46.56/success?type=workout&videoid=`+ videoId + '&userid=' + id;
 	// create payment object 
     var payment = {
             "intent": "authorize",
@@ -129,7 +142,7 @@ router.post('/buy/workout' , ( req , res ) => {
         // "return_url":   "http://18.219.46.56/success",
         // "cancel_url":  "http://18.219.46.56/cancel"
         "return_url":   url,
-		"cancel_url":  "http://localhost:3000/cancel"
+		"cancel_url":  "http://18.219.46.56/cancel"
 	},
 	"transactions": [{
 		"amount": {
@@ -230,6 +243,23 @@ router.post('/successworkout' , (req ,res ) => {
     console.log(req.body); 
     Workout.findByIdAndUpdate(req.body.videoId, {$push:{subscriptions:req.body.userId}}).then(data => {
         res.status(200).json({status: true, message:"Subscription added", data})
+        User.findById(req.body.userId).then(data => {
+            let email = {
+                to: data.email,
+                from: "info@fitforgolfusa.com",
+                subject: "Transaction successful! - Synergistic Golf",
+    
+                text: "Thank you for purchasing a Video from us!"
+              };
+    
+              
+              mailer.sendMail(email, function(err, res) {
+                if (err) {
+                  console.log(err);
+                }
+                console.log({res})})
+        })
+
     }).catch(err => {
         res.status(400).json({status: false, message: err})
     })
@@ -243,6 +273,23 @@ router.post('/successebook' , (req ,res ) => {
     //     PayerID
     User.findByIdAndUpdate(req.body.id, {$set:{ebook:true}}).then(data => {
         res.status(200).json({status: true, message:"ebook purchases", data})
+
+        let email = {
+            to: data.email,
+            from: "info@fitforgolfusa.com",
+            subject: "Transaction successful! - Synergistic Golf",
+
+            text: "Thank you for purchasing an Ebook from us!"
+          };
+
+          
+          mailer.sendMail(email, function(err, res) {
+            if (err) {
+              console.log(err);
+            }
+            console.log({res})})
+
+
     }).catch(console.log)
 
 
@@ -258,8 +305,50 @@ router.post('/success' , (req ,res ) => {
     //     PayerID
 
     console.log(req.body); 
-    User.findOneAndUpdate({payId: req.body.paymentId}, {$set:{book: true, transactionIdBook: req.body.PayerID}}).then(data => {
-        Shipping.findOneAndUpdate({payId: req.body.paymentId}, {$set:{paid:true}}).catch(console.log)
+    Shipping.findOneAndUpdate({payId: req.body.paymentId}, {$set:{paid:true}}).then(async ship => {
+        User.findByIdAndUpdate(ship.user, {$set:{book: true, transactionIdBook: req.body.PayerID}}, {new: true}).then(async data => {
+console.log({ship})
+
+
+        
+       console.log({data})
+        let shipTemplate = await ejs.renderFile(
+            __dirname + "/ship.ejs",
+            { data: data, ship:ship }
+          );
+          var email = {
+            to: data.email,
+            from: "info@fitforgolfusa.com",
+            subject: "Order Summary",
+
+            html: shipTemplate
+          };
+
+          console.log({email})
+          mailer.sendMail(email, function(err, res) {
+            if (err) {
+              console.log(err);
+            }
+            var emailToMindi = {
+                to: process.env.SEND_EMAIL_TO,
+                from: "info@fitforgolfusa.com",
+                subject: "Order Summary",
+    
+                html: shipTemplate
+              };
+              mailer.sendMail(emailToMindi, function(err, res) {
+                if (err) {
+                  console.log(err);
+                }
+                console.log(res);
+
+            })
+
+            console.log(res);
+          });
+        }).catch(console.log)
+       
+       
         res.status(200).json({status: true, message:"Success", data})
         console.log({data})
     }).catch(err => {
