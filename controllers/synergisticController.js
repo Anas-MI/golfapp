@@ -28,7 +28,6 @@ var sgTransport = require("nodemailer-sendgrid-transport");
 var options = {
   auth: {
     api_key:
-      // "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"
       process.env.API_KEY
     }
 };
